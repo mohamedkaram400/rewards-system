@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Http\Requests\Admin;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class UpdateProductRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'name' => 'somtimes|string|max:255',
+            'description' => 'somtimes|string',
+            'price' => 'somtimes|numeric|min:0',
+            'point_cost' => 'somtimes|numeric|min:0',
+            'is_offer_pool' => 'somtimes|boolean',
+            'category_id' => 'somtimes|nullable|exists:categories,id'
+        ];
+    }
+}
