@@ -31,6 +31,15 @@ services:
     networks:
       - rewards
 
+  redis:
+    image: redis:alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - rewards
+      
 networks:
   rewards:
     driver: bridge
@@ -38,3 +47,5 @@ networks:
 volumes:
   rewards-mysql:
     driver: local
+  redis_data:
+  

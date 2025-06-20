@@ -2,8 +2,11 @@
 
 namespace App\Services;
 
+use App\Helpers\Helper;
 use App\Models\Product;
 use App\Models\Category;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -17,13 +20,31 @@ class ProductService
         $perPage = $request->input('per_page', 10);
         $offerPoolOnly = $request->boolean('offer_pool');
         $categoryId = $request->input('category_id');
+        $searchTerm = $request->input('search');
 
-        return Product::query()
-            ->when($offerPoolOnly, fn($query) => $query->where('is_offer_pool', true))
-            ->when($categoryId, fn($query) => $query->where('category_id', $categoryId))
-            ->with('category')
-            ->latest()
-            ->paginate($perPage);
+        // Generate unique cache key based on all parameters
+        $cacheKey = Helper::generateProductsCacheKey('product', [
+            'per_page' => $perPage,
+            'offer_pool' => $offerPoolOnly,
+            'category_id' => $categoryId,
+            'search' => $searchTerm
+        ]);
+
+        return Cache::tags('products')->remember($cacheKey, now()->addHours(2), function () use ($perPage, $offerPoolOnly, $categoryId, $searchTerm) {
+
+            $query = Product::query();
+
+            // Apply search if term exists
+            if ($searchTerm) {
+                $this->applySearch($query, $searchTerm);
+            }
+
+            return $query->when($offerPoolOnly, fn($query) => $query->where('is_offer_pool', true))
+                ->when($categoryId, fn($query) => $query->where('category_id', $categoryId))
+                ->with('category')
+                ->latest()
+                ->paginate($perPage);
+        });
     }
 
     /**
@@ -43,7 +64,7 @@ class ProductService
     {
         $this->validateCategory($data['category_id'] ?? null);
 
-        return Product::create([
+        $product = Product::create([
             'name' => $data['name'],
             'description' => $data['description'],
             'price' => $data['price'],
@@ -51,6 +72,13 @@ class ProductService
             'is_offer_pool' => $data['is_offer_pool'] ?? false,
             'category_id' => $data['category_id'] ?? null
         ]);
+
+        if ($product) {
+            Cache::tags('products')->flush();
+        }
+
+        return $product;
+
     }
 
     /**
@@ -71,7 +99,12 @@ class ProductService
             'category_id' => $data['category_id'] ?? $product->category_id
         ]);
 
-        return $product->fresh()->load('category');
+        if ($product) {
+            $product->fresh()->load('category');
+            Cache::tags('products')->flush();
+        }
+
+        return $product;
     }
 
     /**
@@ -83,7 +116,11 @@ class ProductService
             'is_offer_pool' => !$product->is_offer_pool
         ]);
 
-        return $product->fresh();
+        $product->fresh();
+        
+        Cache::tags('products')->flush();
+
+        return $product;
     }
 
     /**
@@ -92,6 +129,8 @@ class ProductService
     public function deleteProduct(Product $product): void
     {
         $product->delete();
+        
+        Cache::tags('products')->flush();
     }
 
     /**
@@ -104,5 +143,19 @@ class ProductService
         if ($categoryId && !Category::where('id', $categoryId)->exists()) {
             throw new ModelNotFoundException("Category not found");
         }
+    }
+
+    /**
+     * Apply search conditions to the query
+     */
+    private function applySearch(Builder $query, string $searchTerm): void
+    {
+        $query->where(function($q) use ($searchTerm) {
+            $q->where('name', 'like', "%{$searchTerm}%")
+            ->orWhere('description', 'like', "%{$searchTerm}%")
+            ->orWhereHas('category', function($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%"); 
+            });
+        });
     }
 }

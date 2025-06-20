@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Helpers\Helper;
 use App\Models\CreditPackage;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -13,23 +15,35 @@ class CreditPackageService
      */
     public function getAllPackages(int $perPage = 10): LengthAwarePaginator
     {
-        return CreditPackage::query()
-            ->latest()
-            ->paginate($perPage);
+        // Generate unique cache key based on all parameters
+        $cacheKey = Helper::generateProductsCacheKey('product', [
+            'per_page' => $perPage,
+        ]);
+
+        return Cache::tags('credit_packages')->remember($cacheKey, now()->addHours(2), function () use ($perPage) {
+            return CreditPackage::query()
+                ->latest()
+                ->paginate($perPage);
+    
+        });
     }
 
-    /**
+    /** 
      * Create a new credit package
      */
     public function createPackage(array $data): CreditPackage
     {
-        return CreditPackage::create([
+        $creditPackage = CreditPackage::create([
             'name' => $data['name'],
             'credit_amount' => $data['credit_amount'],
             'price' => $data['price'],
             'bonus_points' => $data['bonus_points'] ?? 0,
             'is_active' => $data['is_active'] ?? true
         ]);
+
+        Cache::tags('credit_packages')->flush();
+
+        return $creditPackage;
     }
 
     /**
@@ -55,6 +69,9 @@ class CreditPackageService
             'is_active' => $data['is_active'] ?? $package->is_active
         ]);
 
+
+        Cache::tags('credit_packages')->flush();
+
         return $package->fresh();
     }
 
@@ -64,5 +81,6 @@ class CreditPackageService
     public function deletePackage(CreditPackage $package): void
     {
         $package->delete();
+        Cache::tags('credit_packages')->flush();
     }
 }
