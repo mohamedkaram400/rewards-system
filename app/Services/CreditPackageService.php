@@ -21,7 +21,7 @@ class CreditPackageService
         ]);
 
         return Cache::tags('credit_packages')->remember($cacheKey, now()->addHours(2), function () use ($perPage) {
-            return CreditPackage::query()
+            return CreditPackage::where('is_active', true)
                 ->latest()
                 ->paginate($perPage);
     

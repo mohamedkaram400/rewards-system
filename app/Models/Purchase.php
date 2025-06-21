@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class CreditPackage extends Model
+class Purchase extends Model
 {
-    protected $fillable = ['name', 'credit_amount', 'price', 'bonus_points', 'is_active'];
+    protected $fillable = ['user_id', 'status', 'price_paid', 'credit_package_id', 'transaction_id'];
 
     public function creditPackage(): BelongsTo
     {
-        return $this->belongsTo(Purchase::class);
+        return $this->belongsTo(CreditPackage::class);
     }
 }

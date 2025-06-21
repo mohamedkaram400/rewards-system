@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\CreditPackageController;
+use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\RedemptionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -26,6 +28,9 @@ Route::middleware(['auth:sanctum'])->group(function() {
     Route::apiResource('categories', CategoryController::class);
     Route::patch('products/{product}/toggle-offer', [ProductController::class, 'toggleOffer']);
     });
+
+    Route::post('/purchases', PurchaseController::class);
+    Route::post('redemptions/', RedemptionController::class);
     
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 });
