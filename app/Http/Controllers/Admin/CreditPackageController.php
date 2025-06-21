@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Resources\CreditPackageResource;
 use Illuminate\Http\Request;
 use App\Models\CreditPackage;
 use App\Traits\ApiResponseTrait;
@@ -26,7 +27,7 @@ class CreditPackageController extends Controller
         $perPage = $request->input('per_page', 10);
         $packages = $this->creditPackageService->getAllPackages($perPage);
 
-        return $this->ApiResponse('Packages Returned Successfull', 200, $packages);
+        return $this->ApiResponse('Packages Returned Successfull', 200, CreditPackageResource::collection($packages));
     }
 
     /**
@@ -36,7 +37,7 @@ class CreditPackageController extends Controller
     {
         $package = $this->creditPackageService->createPackage($request->validated());
 
-        return $this->ApiResponse('Package Created Successfull', 201, $package);
+        return $this->ApiResponse('Package Created Successfull', 201, new CreditPackageResource($package));
     }
 
     /**
@@ -46,7 +47,7 @@ class CreditPackageController extends Controller
     {
         $creditPackage = $this->creditPackageService->getcreditPackageById($creditPackage->id);
 
-        return $this->ApiResponse('creditPackage Returned Successfull', 200, $creditPackage);
+        return $this->ApiResponse('creditPackage Returned Successfull', 200, new CreditPackageResource($creditPackage));
     }
 
     /**
@@ -59,7 +60,7 @@ class CreditPackageController extends Controller
             $request->validated()
         );
 
-        return $this->ApiResponse('Package Updated Successfull', 200, $package);
+        return $this->ApiResponse('Package Updated Successfull', 200, new CreditPackageResource($package));
     }
 
     /**

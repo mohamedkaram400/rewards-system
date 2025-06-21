@@ -22,12 +22,12 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'somtimes|string|max:255',
-            'description' => 'somtimes|string',
-            'price' => 'somtimes|numeric|min:0',
-            'point_cost' => 'somtimes|numeric|min:0',
-            'is_offer_pool' => 'somtimes|boolean',
-            'category_id' => 'somtimes|nullable|exists:categories,id'
+            'name' => 'sometimes|string|max:255',
+            'description' => 'sometimes|string',
+            'price' => 'sometimes|numeric|min:0',
+            'point_cost' => 'sometimes|numeric|min:0',
+            'is_offer_pool' => 'sometimes|boolean',
+            'category_id' => 'sometimes|nullable|exists:categories,id'
         ];
     }
 }

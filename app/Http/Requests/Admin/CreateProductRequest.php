@@ -25,7 +25,7 @@ class CreateProductRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'point_cost' => 'somtimes|numeric|min:0',
+            'point_cost' => 'sometimes|numeric|min:0',
             'is_offer_pool' => 'required|boolean',
             'category_id' => 'required|nullable|exists:categories,id'
         ];

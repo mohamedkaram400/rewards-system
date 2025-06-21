@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CreateProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
+use App\Http\Resources\ProductResource;
 
 class ProductController extends Controller
 {
@@ -26,7 +27,7 @@ class ProductController extends Controller
     {
         $products = $this->productService->getAllProducts($request);
 
-        return $this->ApiResponse('Products Returned Successfull', 200, $products);
+        return $this->ApiResponse('Products Returned Successfull', 200, ProductResource::collection($products));
     }
 
     /**
@@ -36,7 +37,7 @@ class ProductController extends Controller
     {
         $product = $this->productService->createProduct($request->validated());
 
-        return $this->ApiResponse('Product Created Successfull', 201, $product);
+        return $this->ApiResponse('Product Created Successfull', 201, new ProductResource($product));
     }
 
     /**
@@ -46,7 +47,7 @@ class ProductController extends Controller
     {
         $product = $this->productService->getProductById($product->id);
 
-        return $this->ApiResponse('Product Returned Successfull', 200, $product);
+        return $this->ApiResponse('Product Returned Successfull', 200, new ProductResource($product));
     }
 
     /**
@@ -59,7 +60,7 @@ class ProductController extends Controller
             $request->validated()
         );
 
-        return $this->ApiResponse('Product Updated Successfull', 200, $product);
+        return $this->ApiResponse('Product Updated Successfull', 200, new ProductResource($product));
     }
 
     /**
@@ -69,7 +70,7 @@ class ProductController extends Controller
     {
         $product = $this->productService->toggleOfferPool($product);
 
-        return $this->ApiResponse('Offer Pool Status Updated', 200, $product);
+        return $this->ApiResponse('Offer Pool Status Updated', 200, new ProductResource($product));
     }
 
     /**
@@ -80,5 +81,16 @@ class ProductController extends Controller
         $this->productService->deleteProduct($product);
 
         return $this->ApiResponse('Product Deleted Successfull', 204);
+    }
+
+    /**
+     * Return Redemptionable products only
+     */
+    public function getProductsRedemptionable(Request $request): JsonResponse
+    {
+        $perPage = $request->input('per_page', 10);
+        $packages = $this->productService->getProductsRedemptionable($perPage);
+
+        return $this->ApiResponse('Products Returned Successfull', 200, ProductResource::collection($packages));
     }
 }

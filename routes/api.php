@@ -20,14 +20,17 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
 
 
 
-// Admin routes
 Route::middleware(['auth:sanctum'])->group(function() {
+    // Admin routes 
     Route::prefix('admin')->group(function() {
     Route::apiResource('credit-packages', CreditPackageController::class);
     Route::apiResource('products', ProductController::class);
     Route::apiResource('categories', CategoryController::class);
     Route::patch('products/{product}/toggle-offer', [ProductController::class, 'toggleOffer']);
     });
+
+    // Public (Auth) routes
+    Route::get('redemptionable-products/', [ProductController::class, 'getProductsRedemptionable']);
 
     Route::post('/purchases', PurchaseController::class);
     Route::post('redemptions/', RedemptionController::class);

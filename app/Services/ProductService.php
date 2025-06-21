@@ -134,6 +134,17 @@ class ProductService
     }
 
     /**
+     * Return Redemptionable products only
+     */
+    public function getProductsRedemptionable($request)
+    {
+        return Product::where('is_offer_pool', true)
+            ->with('category')
+            ->latest()
+            ->paginate($request->perPage ?? 10);
+    }
+
+    /**
      * Validate category exists
      *
      * @throws ModelNotFoundException
