@@ -8,6 +8,7 @@ use App\Http\Controllers\RedemptionController;
 use App\Http\Controllers\AiRedemptionController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\PurchaseStrategyController;
 use App\Http\Controllers\Admin\CreditPackageController;
 
 Route::get('/user', function (Request $request) {
@@ -33,6 +34,7 @@ Route::middleware(['auth:sanctum'])->group(function() {
     // Public (Auth) routes
     Route::get('redemptionable-products/', [ProductController::class, 'getProductsRedemptionable']);
 
+    Route::post('/purchases', [PurchaseStrategyController::class, 'purchase']); // With strategy pattern 
     Route::post('/purchases', PurchaseController::class); // Without strategy pattern 
     
     Route::post('redemptions/', RedemptionController::class);
@@ -41,3 +43,4 @@ Route::middleware(['auth:sanctum'])->group(function() {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 });
 
+Route::post('/payment/callback', [PurchaseStrategyController::class, 'callback']);
