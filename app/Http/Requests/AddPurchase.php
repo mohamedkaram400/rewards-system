@@ -22,7 +22,8 @@ class AddPurchase extends FormRequest
     public function rules(): array
     {
         return [
-            'credit_package_id' => ['required', 'exists:credit_packages,id']
+            'credit_package_id' => ['required', 'exists:credit_packages,id'],
+            'payemnt_type' => ['required', 'in:paymob,paypal']
         ];
     }
 }

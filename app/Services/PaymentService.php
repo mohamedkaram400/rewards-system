@@ -4,23 +4,23 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\Purchase;
-use ConcreteStrategyFactory;
 use App\Models\CreditPackage;
 use App\Models\PointTransaction;
 use App\Strategy\PaymentProcess;
 use App\Enums\PurchaseStatusEnum;
 use App\Enums\TransactionTypeEnum;
+use App\Strategy\ConcreteStrategyFactory;
 
 class PaymentService
 {
-    public function initPayment($user, $type)
+    public function initPayment($type)
     {
         $factory = new ConcreteStrategyFactory();
         $context = new PaymentProcess();
         $strategy = $factory->InitStrategy($type);
         $context->setStrategy($strategy);
         $response = $context->paymentResponse();
-
+        
         return $response;
     }
 

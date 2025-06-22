@@ -35,7 +35,7 @@ Route::middleware(['auth:sanctum'])->group(function() {
     Route::get('redemptionable-products/', [ProductController::class, 'getProductsRedemptionable']);
 
     Route::post('/purchases', [PurchaseStrategyController::class, 'purchase']); // With strategy pattern 
-    Route::post('/purchases', PurchaseController::class); // Without strategy pattern 
+    // Route::post('/purchases', PurchaseController::class); // Without strategy pattern 
     
     Route::post('redemptions/', RedemptionController::class);
     Route::post('redemption-recommendation-with-ai/', AiRedemptionController::class);

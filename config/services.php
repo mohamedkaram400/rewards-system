@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'paymob' => [
+        'base_url' => env('PAYMOB_BASE_URL', 'https://accept.paymob.com/api'),
+        'username' => env('PAYMOB_USERNAME'),
+        'password' => env('PAYMOB_PASSWORD'),
+    ],
 ];

@@ -37,27 +37,26 @@ class PurchaseStrategyController extends Controller
                 ->firstOrFail();
         
             // - Generate a unique transaction ID (simulating a payment gateway response)
-            $transactionId = $this->paymentMethod->initPayment($user, $request->type);
+            $resopnse = $this->paymentMethod->initPayment( $request->payemnt_type);
 
             // - Store the purchase record
             Purchase::create([
                 'user_id'           => $user->id,
                 'price_paid'        => $package->price,
                 'credit_package_id' => $package->id,
-                'transaction_id'    => $transactionId, // 
+                'transaction_id'    => $resopnse['id'], 
                 'status'            => PurchaseStatusEnum::PENDING->value,
             ]);
 
             DB::commit();
         
-            return $this->apiResponse('Purchase data sended to payment successfully.', 200);
+            return $this->apiResponse('Purchase data sended to payment successfully.', 200, $resopnse['url']);
         
         } catch (Exception $e) {
             DB::rollBack();
             return $this->apiResponse($e->getMessage(), 500);
         }
     }
-
     public function callback(Request $request): JsonResponse
     {
         try {
