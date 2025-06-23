@@ -3,5 +3,5 @@ namespace App\Strategy\Interfaces;
 
 interface PaymentMethodInterface
 {
-    public function excute();
+    public function excute($data);
 }

@@ -6,7 +6,7 @@ use App\Strategy\Interfaces\PaymentMethodInterface;
 
 class PaymobPaymentStrategy implements PaymentMethodInterface
 {
-    public function excute()
+    public function excute($data)
     {
         // dd(config('services.paymob.username'), config('services.paymob.password'));
 
@@ -21,22 +21,22 @@ class PaymobPaymentStrategy implements PaymentMethodInterface
         }
 
         $token = $authResponse->json('token');
-        return $this->sendPaymentInfo($token);
+        return $this->sendPaymentInfo($token, $data);
     }
 
-    public function sendPaymentInfo($token)
+    private function sendPaymentInfo($token, $data)
     {
         // Step 2: Create the order
         $orderResponse = Http::post(env('PAYMOB_BASE_URL') . '/ecommerce/orders', [
             'auth_token' => $token,
             'api_source' => 'INVOICE',
-            'amount_cents' => "4000",
+            'amount_cents' => $data['package_price'],
             'currency' => 'EGP',
             'shipping_data' => [
-                'first_name' => 'Test',
-                'last_name' => 'Account',
+                'first_name' => $data['name'],
+                'last_name' => '',
                 'phone_number' => '01010101010',
-                'email' => 'test@account.com',
+                'email' => $data['email'],
             ],
             'integrations' => [4277015], 
             'items' => [
@@ -56,6 +56,6 @@ class PaymobPaymentStrategy implements PaymentMethodInterface
 
         $orderData = $orderResponse->json();
 
-        return $orderData; // or $orderData['payment_url'] if available
+        return $orderData;
     }
 }

@@ -11,8 +11,8 @@ class PaymentProcess
         $this->strategy = $strategy;
     }
 
-    public function paymentResponse()
+    public function paymentResponse($data)
     {
-        return $this->strategy->excute();
+        return $this->strategy->excute($data);
     }
 }

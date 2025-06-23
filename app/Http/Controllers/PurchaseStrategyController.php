@@ -35,9 +35,16 @@ class PurchaseStrategyController extends Controller
             $package = CreditPackage::where('id', $data['credit_package_id'])
                 ->where('is_active', true)
                 ->firstOrFail();
+
+            $data = [
+                'payment_method'    => $request->payemnt_type,
+                'package_price'     => $package->price,
+                'name'              => $user->name,
+                'email'             => $user->email,
+            ];
         
-            // - Generate a unique transaction ID (simulating a payment gateway response)
-            $resopnse = $this->paymentMethod->initPayment( $request->payemnt_type);
+            // - Make payment rquest to payment gateway
+            $resopnse = $this->paymentMethod->initPayment( $data);
 
             // - Store the purchase record
             Purchase::create([

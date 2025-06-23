@@ -13,13 +13,13 @@ use App\Strategy\ConcreteStrategyFactory;
 
 class PaymentService
 {
-    public function initPayment($type)
+    public function initPayment($data)
     {
         $factory = new ConcreteStrategyFactory();
         $context = new PaymentProcess();
-        $strategy = $factory->InitStrategy($type);
+        $strategy = $factory->InitStrategy($data['payment_method']);
         $context->setStrategy($strategy);
-        $response = $context->paymentResponse();
+        $response = $context->paymentResponse($data);
         
         return $response;
     }
