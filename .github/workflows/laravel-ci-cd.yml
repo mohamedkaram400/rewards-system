@@ -1,0 +1,118 @@
+name: Laravel CI/CD Pipeline
+
+env:
+  APP_PORT: 8000
+  DB_PORT: 3309
+  REDIS_PORT: 6380
+  DOCKER_HUB_REPOSITORY: your-dockerhub-username/rewards-system
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test-and-run:
+    name: Test and Run Application
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: qazwsx  # Changed to match your docker-compose
+          MYSQL_DATABASE: reward_system  # Changed to match your docker-compose
+        ports:
+          - ${{ env.DB_PORT }}:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        volumes:
+          - mysql_data:/var/lib/mysql
+      redis:
+        image: redis:alpine
+        ports:
+          - ${{ env.REDIS_PORT }}:6379
+        volumes:
+          - redis_data:/data
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Build application image
+      run: docker build -f docker/Dockerfile -t rewards-app .
+
+    - name: Start containers
+      run: |
+        docker network create rewards
+        
+        docker run -d --name rewards-mysql \
+          -e MYSQL_ROOT_PASSWORD=qazwsx \
+          -e MYSQL_DATABASE=reward_system \
+          -p ${{ env.DB_PORT }}:3306 \
+          -v mysql_data:/var/lib/mysql \
+          --network rewards \
+          mysql:5.7
+        
+        docker run -d --name rewards-redis \
+          -p ${{ env.REDIS_PORT }}:6379 \
+          -v redis_data:/data \
+          --network rewards \
+          redis:alpine
+        
+        docker run -d --name rewards-app \
+          -p ${{ env.APP_PORT }}:8000 \
+          -e DB_HOST=rewards-mysql \
+          -e DB_PORT=3306 \
+          -e DB_DATABASE=reward_system \
+          -e DB_USERNAME=root \
+          -e DB_PASSWORD=qazwsx \
+          --network rewards \
+          rewards-app
+        
+        sleep 15 # Wait for services to initialize
+
+    - name: Run tests
+      run: |
+        docker exec rewards-app composer install
+        docker exec rewards-app php artisan config:clear
+        docker exec rewards-app php artisan migrate:fresh --seed
+        docker exec rewards-app php artisan test
+
+  build-and-push:
+    name: Build and Push Docker Image
+    needs: test-and-run
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+    - name: Build and tag Docker image
+      run: |
+        docker build -f docker/Dockerfile -t ${{ env.DOCKER_HUB_REPOSITORY }}:latest .
+        docker tag ${{ env.DOCKER_HUB_REPOSITORY }}:latest ${{ env.DOCKER_HUB_REPOSITORY }}:${{ github.sha }}
+
+    - name: Push images to Docker Hub
+      run: |
+        docker push ${{ env.DOCKER_HUB_REPOSITORY }}:latest
+        docker push ${{ env.DOCKER_HUB_REPOSITORY }}:${{ github.sha }}
