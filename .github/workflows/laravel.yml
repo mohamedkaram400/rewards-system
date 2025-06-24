@@ -25,14 +25,14 @@ jobs:
           MYSQL_ROOT_PASSWORD: qazwsx  
           MYSQL_DATABASE: reward_system  
         ports:
-          - ${{ env.DB_PORT }}:3306
+          - 3309:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
         volumes:
           - mysql_data:/var/lib/mysql
       redis:
         image: redis:alpine
         ports:
-          - ${{ env.REDIS_PORT }}:6379
+          - 6380:6379
         volumes:
           - redis_data:/data
 
