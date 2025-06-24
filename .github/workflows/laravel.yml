@@ -18,23 +18,6 @@ jobs:
   test-and-run:
     name: Test and Run Application
     runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: qazwsx  
-          MYSQL_DATABASE: reward_system  
-        ports:
-          - 3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-        volumes:
-          - mysql_data:/var/lib/mysql
-      redis:
-        image: redis:alpine
-        ports:
-          - 6379
-        volumes:
-          - redis_data:/data
 
     steps:
     - name: Checkout code
@@ -56,23 +39,26 @@ jobs:
 
     - name: Start containers
       run: |
+        # Remove network if exists (prevent conflict)
+        docker network rm rewards || true
+
+        # Create shared network
         docker network create rewards
-        
+
+        # Start MySQL
         docker run -d --name rewards-mysql \
           -e MYSQL_ROOT_PASSWORD=qazwsx \
           -e MYSQL_DATABASE=reward_system \
           -p ${{ env.DB_PORT }}:3306 \
-          -v mysql_data:/var/lib/mysql \
           --network rewards \
           mysql:5.7
-        
+
+        # Start Redis
         docker run -d --name rewards-redis \
           -p ${{ env.REDIS_PORT }}:6379 \
-          -v redis_data:/data \
           --network rewards \
           redis:alpine
-        
-        
+
     - name: Wait for MySQL to be ready 
       run: |
         for i in {1..30}; do
@@ -81,6 +67,8 @@ jobs:
           sleep 2
         done
 
+    - name: Start app container
+      run: |
         docker run -d --name rewards-app \
           -p ${{ env.APP_PORT }}:8000 \
           -e APP_ENV=testing \
@@ -92,15 +80,15 @@ jobs:
           -e DB_PASSWORD=qazwsx \
           --network rewards \
           rewards-app
-        
-        sleep 15 # Wait for services to initialize
+
+        sleep 10 # Allow Laravel to boot fully
 
     - name: Run tests
       run: |
         docker exec rewards-app composer install
         docker exec rewards-app php artisan config:clear
         docker exec rewards-app php artisan migrate:fresh --seed
-        
+
   build-and-push:
     name: Build and Push Docker Image
     needs: test-and-run
