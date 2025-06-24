@@ -72,15 +72,23 @@ jobs:
           --network rewards \
           redis:alpine
         
+        
+    - name: Wait for MySQL to be ready 
+      run: |
+        for i in {1..30}; do
+          nc -z rewards-mysql 3306 && echo "MySQL is up!" && break
+          echo "Waiting for MySQL..."
+          sleep 2
+        done
+
         docker run -d --name rewards-app \
           -p ${{ env.APP_PORT }}:8000 \
-          -e DB_HOST=rewards-mysql \
           -e APP_ENV=testing \
           -e DB_CONNECTION=mysql \
-          -e DB_HOST=rewards-mysql \
+          -e DB_HOST=mysql \
           -e DB_PORT=3306 \
-          -e DB_USERNAME=root \
           -e DB_DATABASE=reward_system \
+          -e DB_USERNAME=root \
           -e DB_PASSWORD=qazwsx \
           --network rewards \
           rewards-app
