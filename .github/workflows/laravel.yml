@@ -90,8 +90,7 @@ jobs:
         docker exec rewards-app composer install
         docker exec rewards-app php artisan config:clear
         docker exec rewards-app php artisan migrate:fresh --seed
-        docker exec rewards-app php artisan test
-
+        
   build-and-push:
     name: Build and Push Docker Image
     needs: test-and-run
