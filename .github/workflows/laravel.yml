@@ -2,8 +2,8 @@ name: Laravel CI/CD Pipeline
 
 env:
   APP_PORT: 8000
-  DB_PORT: 3309
-  REDIS_PORT: 6380
+  DB_PORT: 3310
+  REDIS_PORT: 6381
   DOCKER_HUB_REPOSITORY: your-dockerhub-username/rewards-system
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
   DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
@@ -25,14 +25,14 @@ jobs:
           MYSQL_ROOT_PASSWORD: qazwsx  
           MYSQL_DATABASE: reward_system  
         ports:
-          - 3310:3306
+          - 3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
         volumes:
           - mysql_data:/var/lib/mysql
       redis:
         image: redis:alpine
         ports:
-          - 6380:6379
+          - 6379
         volumes:
           - redis_data:/data
 
