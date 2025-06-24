@@ -4,7 +4,7 @@ env:
   APP_PORT: 8000
   DB_PORT: 3310
   REDIS_PORT: 6381
-  DOCKER_HUB_REPOSITORY: your-dockerhub-username/rewards-system
+  DOCKER_HUB_REPOSITORY: mohamedkaram100/credit-reward-system
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
   DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
 
