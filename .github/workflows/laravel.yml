@@ -25,7 +25,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: qazwsx  
           MYSQL_DATABASE: reward_system  
         ports:
-          - 3309:3306
+          - 3310:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
         volumes:
           - mysql_data:/var/lib/mysql
