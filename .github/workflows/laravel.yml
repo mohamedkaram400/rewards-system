@@ -75,6 +75,7 @@ jobs:
         docker run -d --name rewards-app \
           -p ${{ env.APP_PORT }}:8000 \
           -e DB_HOST=rewards-mysql \
+          -e APP_ENV=testing \
           -e DB_PORT=3306 \
           -e DB_DATABASE=reward_system \
           -e DB_USERNAME=root \
