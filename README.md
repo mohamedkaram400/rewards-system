@@ -60,6 +60,8 @@ Strategy Pattern used to integrate Paymob (or other gateways in future)
 
 Support for mock or real transactions
 
+**CI/CD Pipeline with Github Action**
+
 **(Bonus) AI Recommendations**:
 
 **Uses OpenAI API** to suggest a product based on point balance and preferences
@@ -69,10 +71,10 @@ Support for mock or real transactions
 ## 📈 Scalability & Clean Architecture
 
 - Service-based architecture
-- Uses Laravel service containers and dependency injection
+- Uses Laravel’s service container and dependency injection
 - Supports additional strategies (PayPal, Stripe) using Strategy Pattern
 - Caching and Redis for performance
-
+- CI/CD Pipeline
 ---
 
 ## ⚙️ Requirements
@@ -166,16 +168,7 @@ This endpoint allows users to create a new redemption for a specified product. B
 
 The request body can include the following parameters:
 
-- **Parameter 1**: (type: text)
-    
-    - Description: \[Insert description of parameter 1\]
-        
-- **Parameter 2**: (type: text)
-    
-    - Description: \[Insert description of parameter 2\]
-        
-
-_Note: Additional parameters can be included as necessary based on the application’s requirements._
+- **product_id**: (type: text)
 
 ### Response Structure
 
@@ -253,6 +246,7 @@ This endpoint uses OpenAI GPT to recommend a product based on the user's point b
     "total": 45
   }
 }
+```
 
 ## Endpoint Collection
 The full list of API endpoints is included in the project’s main directory for easy reference and testing.

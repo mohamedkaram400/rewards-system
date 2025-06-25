@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->integer('points_balance')->unsigned()->default(0);
+            $table->bigInteger('points_balance')->unsigned()->default(0);
         });
     }
 

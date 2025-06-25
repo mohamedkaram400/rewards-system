@@ -36,6 +36,7 @@ class PurchaseStrategyController extends Controller
                 ->where('is_active', true)
                 ->firstOrFail();
 
+            // - Send user and package info for payment
             $data = [
                 'payment_method'    => $request->payemnt_type,
                 'package_price'     => $package->price,

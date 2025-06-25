@@ -34,7 +34,7 @@ class PaymobPaymentStrategy implements PaymentMethodInterface
             'currency' => 'EGP',
             'shipping_data' => [
                 'first_name' => $data['name'],
-                'last_name' => '',
+                'last_name' => 'test',
                 'phone_number' => '01010101010',
                 'email' => $data['email'],
             ],
