@@ -50,7 +50,7 @@ class PaymentService
             ]);
 
         } else {
-            $purchase->status += PurchaseStatusEnum::FAILED->value;
+            $purchase->status = PurchaseStatusEnum::FAILED->value;
             $purchase->save();
         }
                 

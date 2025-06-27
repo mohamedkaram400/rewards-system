@@ -16,7 +16,7 @@ class CreditPackageService
     public function getAllPackages(int $perPage = 10): LengthAwarePaginator
     {
         // Generate unique cache key based on all parameters
-        $cacheKey = Helper::generateProductsCacheKey('product', [
+        $cacheKey = Helper::generateProductsCacheKey('credit_package', [
             'per_page' => $perPage,
         ]);
 
