@@ -5,27 +5,52 @@ services:
       dockerfile: ./docker/Dockerfile
     container_name: rewards-app
     ports:
-      - 8000:8000
+      - "9000:9000"  
     volumes:
       - ./:/app
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
     depends_on:
       - mysql
     environment:
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_DATABASE=reward_system
-      - DB_USERNAME=root
-      - DB_PASSWORD=qazwsx
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
     networks:
       - rewards
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  nginx:
+    image: nginx:alpine
+    container_name: rewards-nginx
+    ports:
+      - "8000:80" 
+    volumes:
+      - ./:/app
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - app
+    networks:
+      - rewards
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   mysql:
     image: mysql:5.7
+    container_name: rewards-mysql
     ports:
       - "3309:3306"
     environment:
-      MYSQL_DATABASE: reward_system
-      MYSQL_ROOT_PASSWORD: qazwsx
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - rewards-mysql:/var/lib/mysql
     networks:
@@ -33,6 +58,7 @@ services:
 
   redis:
     image: redis:alpine
+    container_name: rewards-redis
     ports:
       - "6380:6379"
     volumes:
