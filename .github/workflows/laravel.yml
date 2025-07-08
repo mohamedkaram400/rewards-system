@@ -77,6 +77,8 @@ jobs:
           -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
           -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
           -p ${{ env.PHP_FPM_PORT }}:9000 \
+          -e APP_ENV=testing \
+          -e APP_DEBUG=true \
           --network rewards \
           rewards-app
 
