@@ -5,33 +5,32 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponseTrait;
-use Illuminate\Support\Facades\DB;
+use App\Services\CategoryService;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 
 class CategoryController extends Controller
 {
     use ApiResponseTrait;
 
+    public function __construct(
+        private CategoryService $categoryService
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        $categories = DB::table('categories')->get();
-
-        return $this->ApiResponse('Categories Returned Successfull', 201, $categories);
+        return $this->categoryService->getAllCategories();
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        $request->validate([
-            'name'   => 'required|string'
-        ]);
-
-        $category = Category::create(['name' => $request->name]);
+        $category = $this->categoryService->createCategory($request->validated());
 
         return $this->ApiResponse('Category Created Successfull', 201, $category);
     }
@@ -39,22 +38,18 @@ class CategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show($id): Category
     {
-        return Category::findOrFail($id);
+        $category = $this->categoryService->getCategoryById($id);
+        return $category;
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
-        $request->validate([
-            'name'   => 'required|string'
-        ]);
-
-        $category = Category::findOrFail($id);
-        $category->update(['name' => $request->name]);
+        $category = $this->categoryService->updateCategory($request, $id);
         
         return $this->ApiResponse('Category Updated Successfull', 200, $category);
     }
@@ -62,10 +57,8 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
-        Category::findOrFail($id)->delete();
-
-        return $this->ApiResponse('Category Deleted Successfull', 200);
+        return $this->categoryService->deleteCategory($id);
     }
 }

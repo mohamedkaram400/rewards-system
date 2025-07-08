@@ -71,12 +71,15 @@ jobs:
     - name: Start app container
       run: |
         docker run -d --name rewards-app \
+          -e DB_CONNECTION=mysql \
           -e DB_HOST=${{ secrets.DB_HOST }} \
           -e DB_PORT=${{ secrets.DB_PORT }} \
           -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
           -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
           -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
           -p ${{ env.PHP_FPM_PORT }}:9000 \
+          -e APP_ENV=testing \
+          -e APP_DEBUG=true \
           --network rewards \
           rewards-app
 
