@@ -2,12 +2,13 @@ name: Laravel CI/CD Pipeline
 
 env:
   APP_PORT: 8000
+  PHP_FPM_PORT: 9000
   DB_PORT: 3310
   REDIS_PORT: 6381
   DOCKER_HUB_REPOSITORY: mohamedkaram100/credit-reward-system
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
   DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
-
+  
 on:
   push:
     branches: ["main"]
@@ -70,18 +71,25 @@ jobs:
     - name: Start app container
       run: |
         docker run -d --name rewards-app \
-          -p ${{ env.APP_PORT }}:8000 \
-          -e APP_ENV=testing \
-          -e DB_CONNECTION=mysql \
-          -e DB_HOST=rewards-mysql \
-          -e DB_PORT=3306 \
-          -e DB_DATABASE=reward_system \
-          -e DB_USERNAME=root \
-          -e DB_PASSWORD=qazwsx \
+          -e DB_HOST=${{ secrets.DB_HOST }} \
+          -e DB_PORT=${{ secrets.DB_PORT }} \
+          -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
+          -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+          -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+          -p ${{ env.PHP_FPM_PORT }}:9000 \
           --network rewards \
           rewards-app
 
         sleep 10 # Allow Laravel to boot fully
+    
+    - name: Start nginx container
+      run: |
+        docker run -d --name rewards-nginx \
+          -p ${{ env.APP_PORT }}:80 \
+          -v ${{ github.workspace }}:/app \
+          -v ${{ github.workspace }}/docker/nginx/conf.d:/etc/nginx/conf.d \
+          --network rewards \
+          nginx:alpine
 
     - name: Run tests
       run: |
