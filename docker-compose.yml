@@ -1,9 +1,9 @@
 services:
-  app:
+  app1:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
-    container_name: rewards-app
+    container_name: replica-1
     ports:
       - "9000:9000"  
     volumes:
@@ -12,6 +12,7 @@ services:
     depends_on:
       - mysql
     environment:
+      APP_NAME: Replica-1
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
       DB_DATABASE: ${DB_DATABASE}
@@ -20,7 +21,34 @@ services:
     networks:
       - rewards
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000"]
+      test: ["CMD", "php", "-v"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  
+  app2:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    container_name: replica-2
+    ports:
+      - "9001:9000"  
+    volumes:
+      - ./:/app
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - mysql
+    environment:
+      APP_NAME: Replica-2
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - rewards
+    healthcheck:
+      test: ["CMD", "php", "-v"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -34,7 +62,8 @@ services:
       - ./:/app
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
     depends_on:
-      - app
+      - app1
+      - app2
     networks:
       - rewards
     healthcheck:

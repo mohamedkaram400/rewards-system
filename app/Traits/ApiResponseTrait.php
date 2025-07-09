@@ -12,6 +12,7 @@ trait ApiResponseTrait
             'message' => $message,
             'status_code' => $status,
             'data' => $data,
+            // 'replica' => config('app.name'),
         ];
 
         if ($pagination) {
