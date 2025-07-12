@@ -7,7 +7,7 @@ use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\CursorPaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ProductService
@@ -15,7 +15,7 @@ class ProductService
     /**
      * Get all products with pagination and optional filters
      */
-    public function getAllProducts($request): LengthAwarePaginator 
+    public function getAllProducts($request): CursorPaginator 
     {
         $perPage = $request->input('per_page', 10);
         $offerPoolOnly = $request->boolean('offer_pool');
@@ -41,9 +41,9 @@ class ProductService
 
             return $query->when($offerPoolOnly, fn($query) => $query->where('is_offer_pool', true))
                 ->when($categoryId, fn($query) => $query->where('category_id', $categoryId))
-                ->with('category')
+                ->with('category:id,name')
                 ->latest()
-                ->paginate($perPage);
+                ->cursorPaginate($perPage);
         });
     }
 
@@ -161,11 +161,13 @@ class ProductService
      */
     private function applySearch(Builder $query, string $searchTerm): void
     {
-        $query->where(function($q) use ($searchTerm) {
-            $q->where('name', 'like', "%{$searchTerm}%")
-            ->orWhere('description', 'like', "%{$searchTerm}%")
-            ->orWhereHas('category', function($q) use ($searchTerm) {
-                $q->where('name', 'like', "%{$searchTerm}%"); 
+        $query->where(function ($q) use ($searchTerm) {
+            // Full-text search on products table
+            $q->whereRaw('MATCH(name, description) AGAINST (? IN BOOLEAN MODE)', [$searchTerm])
+    
+            // Full-text search on related category name
+            ->orWhereHas('category', function ($q) use ($searchTerm) {
+                $q->whereRaw('MATCH(name) AGAINST (? IN BOOLEAN MODE)', [$searchTerm]);
             });
         });
     }

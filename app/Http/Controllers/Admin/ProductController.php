@@ -27,6 +27,10 @@ class ProductController extends Controller
     {
         $products = $this->productService->getAllProducts($request);
 
+        if ($products->count() === 0) {
+            return $this->ApiResponse('No products found', 404);
+        }
+
         return $this->ApiResponse('Products Returned Successfull', 200, ProductResource::collection($products));
     }
 
