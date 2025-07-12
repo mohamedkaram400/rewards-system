@@ -30,7 +30,7 @@ class CategoryController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $category = $this->categoryService->createCategory($request->validated());
+        $category = $this->categoryService->createCategory($request);
 
         return $this->ApiResponse('Category Created Successfull', 201, $category);
     }

@@ -57,7 +57,6 @@ class CategoryService
 
         $category = Category::findOrFail($id);
         $category->update(['name' => $request->name]);
-        $category->fresh()->load('category');
 
         return $category;
     }
@@ -67,11 +66,9 @@ class CategoryService
      */
     public function deleteCategory($id): JsonResponse
     {
-        $exists = Category::where('id', $id)->exists();
+        $category = Category::findOrFail($id);
 
-        if ($exists) {
-            return $this->apiResponse('Failed to delete category.', 500);
-        }
+        $category->delete();
 
         return $this->ApiResponse('Category Deleted Successfull', 200); 
     }
