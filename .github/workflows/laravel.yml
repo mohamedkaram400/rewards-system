@@ -72,7 +72,7 @@ jobs:
       run: |
         docker run -d --name rewards-app \
           -e DB_CONNECTION=mysql \
-          -e DB_HOST=${{ secrets.DB_HOST }} \
+          -e DB_HOST=rewards-mysql \
           -e DB_PORT=${{ secrets.DB_PORT }} \
           -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
           -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
