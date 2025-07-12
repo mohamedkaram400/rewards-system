@@ -10,7 +10,8 @@ services:
       - ./:/app
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
     depends_on:
-      - mysql
+      - mysql_master
+      - mysql_replica1
     environment:
       APP_NAME: Replica-1
       DB_HOST: ${DB_HOST}
@@ -37,7 +38,8 @@ services:
       - ./:/app
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
     depends_on:
-      - mysql
+      - mysql_master
+      - mysql_replica1
     environment:
       APP_NAME: Replica-2
       DB_HOST: ${DB_HOST}
@@ -72,18 +74,42 @@ services:
       timeout: 10s
       retries: 3
 
-  mysql:
+  mysql_master:
     image: mysql:5.7
-    container_name: rewards-mysql
+    container_name: mysql-master
     ports:
       - "3309:3306"
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    command: >
+      --server-id=1
+      --log-bin=mysql-bin
     volumes:
-      - rewards-mysql:/var/lib/mysql
+      - mysql-master:/var/lib/mysql
     networks:
       - rewards
+
+  mysql_replica1:
+    image: mysql:5.7
+    container_name: mysql-replica1
+    ports:
+      - "3310:3306"
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    command: >
+      --server-id=2
+      --read-only=1
+      --relay-log=mysql-relay-bin
+      --log-bin=mysql-bin
+      --log-slave-updates=1
+    volumes:
+      - mysql-replica1:/var/lib/mysql
+    networks:
+      - rewards
+    depends_on:
+      - mysql_master
 
   redis:
     image: redis:alpine
@@ -100,7 +126,7 @@ networks:
     driver: bridge
 
 volumes:
-  rewards-mysql:
-    driver: local
+  mysql-master:
+  mysql-replica1:
   redis_data:
   
