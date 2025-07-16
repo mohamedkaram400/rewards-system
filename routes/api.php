@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Spatie\Prometheus\Facades\Prometheus;
+use Spatie\Prometheus\PrometheusExporter;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\RedemptionController;
@@ -10,6 +12,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\PurchaseStrategyController;
 use App\Http\Controllers\Admin\CreditPackageController;
+use Spatie\Prometheus\Http\Controllers\MetricsController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -44,3 +47,9 @@ Route::middleware(['auth:sanctum'])->group(function() {
 });
 
 Route::post('/payment/callback', [PurchaseStrategyController::class, 'callback']);
+
+Route::get('/metrics', function () {
+    return response(
+        Prometheus::getRegistry()->getMetricFamilySamplesAsText()
+    )->header('Content-Type', 'text/plain; version=0.0.4');
+});

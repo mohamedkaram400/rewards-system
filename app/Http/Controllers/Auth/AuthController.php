@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Auth\LoginRequest;
+use Spatie\Prometheus\Facades\Prometheus;
 use App\Http\Requests\Auth\RegisterRequest;
 use Illuminate\Validation\ValidationException;
 
@@ -54,6 +55,8 @@ class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         $credentials = $request->validated();
+        
+        Prometheus::counter('api_requests_total', 'Total API requests')->inc();
 
         $user = User::where('email', $credentials['email'])->first();
 
