@@ -3,7 +3,7 @@ name: Laravel CI/CD Pipeline
 env:
   APP_PORT: 8000
   PHP_FPM_PORT: 9000
-  DB_PORT: 3310
+  DB_PORT: 3309
   REDIS_PORT: 6381
   DOCKER_HUB_REPOSITORY: mohamedkaram100/credit-reward-system
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
@@ -47,7 +47,7 @@ jobs:
         docker network create rewards
 
         # Start MySQL
-        docker run -d --name rewards-mysql \
+        docker run -d --name mysql-master \
           -e MYSQL_ROOT_PASSWORD=qazwsx \
           -e MYSQL_DATABASE=reward_system \
           -p ${{ env.DB_PORT }}:3306 \
@@ -73,7 +73,7 @@ jobs:
         docker run -d --name rewards-app \
           -e DB_CONNECTION=mysql \
           -e DB_HOST=rewards-mysql \
-          -e DB_PORT=${{ secrets.DB_PORT }} \
+          -e DB_PORT=${{ env.DB_PORT }} \
           -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
           -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
           -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
