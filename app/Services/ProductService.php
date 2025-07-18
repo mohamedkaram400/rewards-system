@@ -134,6 +134,12 @@ class ProductService
      */
     public function getProductsRedemptionable($perPage): CursorPaginator
     {
-        return $this->productRepository->getProductsRedemptionable($perPage);
+        $products = $this->productRepository->getProductsRedemptionable($perPage);
+
+        if ($products->count() === 0) {
+                throw new NotFoundProductsException();
+            }
+
+        return $products;
     }
 }

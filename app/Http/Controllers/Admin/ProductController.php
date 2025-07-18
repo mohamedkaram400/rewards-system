@@ -10,6 +10,7 @@ use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
+use App\Exceptions\ProductDeletionException;
 use App\Exceptions\NotFoundProductsException;
 use App\Http\Requests\Admin\CreateProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
@@ -51,14 +52,19 @@ class ProductController extends Controller
      *
      * Validated data comes from a custom request class.
      *
-     * @param \App\Http\Requests\Product\CreateProductRequest $request
+     * @param \App\Http\Requests\Admin\CreateProductRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(CreateProductRequest $request): JsonResponse
     {
-        $product = $this->productService->createProduct($request->validated());
+        try {
 
-        return $this->ApiResponse('Product Created Successfull', 201, new ProductResource($product));
+            $product = $this->productService->createProduct($request->validated());
+
+            return $this->ApiResponse('Product Created Successfull', 201, new ProductResource($product));
+        } catch (Exception $e) {
+            return $this->apiResponse($e->getMessage(), 500);
+        }
     }
 
     /**
@@ -69,26 +75,36 @@ class ProductController extends Controller
      */
     public function show(Product $product): JsonResponse
     {
-        $product = $this->productService->getProductById($product->id);
+        try {
 
-        return $this->ApiResponse('Product Returned Successfull', 200, new ProductResource($product));
+            $product = $this->productService->getProductById($product->id);
+
+            return $this->ApiResponse('Product Returned Successfull', 200, new ProductResource($product));
+        } catch (Exception $e) {
+            return $this->apiResponse($e->getMessage(), 500);
+        }
     }
 
     /**
      * Update the specified product with validated data.
      *
-     * @param \App\Http\Requests\Product\UpdateProductRequest $request
+     * @param \App\Http\Requests\Admin\UpdateProductRequest $request
      * @param \App\Models\Product $product
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
-        $product = $this->productService->updateProduct(
-            $product, 
-            $request->validated()
-        );
+        try {
 
-        return $this->ApiResponse('Product Updated Successfull', 200, new ProductResource($product));
+            $product = $this->productService->updateProduct(
+                $product, 
+                $request->validated()
+            );
+
+            return $this->ApiResponse('Product Updated Successfull', 200, new ProductResource($product));
+        } catch (Exception $e) {
+            return $this->apiResponse($e->getMessage(), 500);
+        }
     }
 
     /**
@@ -99,9 +115,14 @@ class ProductController extends Controller
      */
     public function toggleOffer(Product $product): JsonResponse
     {
-        $product = $this->productService->toggleOfferPool($product);
+        try {
 
-        return $this->ApiResponse('Offer Pool Status Updated', 200, new ProductResource($product));
+            $product = $this->productService->toggleOfferPool($product);
+
+            return $this->ApiResponse('Offer Pool Status Updated', 200, new ProductResource($product));
+        } catch (Exception $e) {
+            return $this->apiResponse($e->getMessage(), 500);
+        }
     }
 
     /**
@@ -112,11 +133,15 @@ class ProductController extends Controller
      */
     public function destroy(Product $product): JsonResponse
     {
+    try {
         $this->productService->deleteProduct($product);
-
-        return $this->ApiResponse('Product Deleted Successfull', 204);
+        return $this->apiResponse('Product deleted successfully', 200);
+        } catch (ProductDeletionException $e) {
+            return $this->apiResponse($e->getMessage(), 500);
+        } catch (\Exception $e) {
+            return $this->apiResponse($e->getMessage(), 500);
+        }
     }
-
     /**
      * Return a paginated list of products eligible for redemption.
      *
@@ -127,8 +152,13 @@ class ProductController extends Controller
      */
     public function getProductsRedemptionable(Request $request): JsonResponse
     {
-        $packages = $this->productService->getProductsRedemptionable($request->per_page);
+        try {
 
-        return $this->ApiResponse('Products Returned Successfull', 200, ProductResource::collection($packages));
+            $packages = $this->productService->getProductsRedemptionable($request->per_page);
+
+            return $this->ApiResponse('Products Returned Successfull', 200, ProductResource::collection($packages));
+        } catch (Exception $e) {
+            return $this->apiResponse($e->getMessage(), 500);
+        }
     }
 }

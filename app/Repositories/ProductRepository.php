@@ -4,6 +4,7 @@ namespace App\Repositories;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\CursorPaginator;
+use App\Exceptions\ProductDeletionException;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
 
 class ProductRepository implements ProductRepositoryInterface
@@ -123,7 +124,11 @@ class ProductRepository implements ProductRepositoryInterface
      */
     public function deleteProduct(Product $product): void
     {
-        $product->delete();
+        $deleted = $product->delete();
+
+        if (!$deleted) {
+            throw new ProductDeletionException("Failed to delete the product.");
+        }
     }
 
     /**
