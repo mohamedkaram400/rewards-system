@@ -9,9 +9,14 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\CursorPaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Repositories\Interfaces\ProductRepositoryInterface;
 
 class ProductService
 {
+    public function __construct(
+        private ProductRepositoryInterface $productRepository
+    ) {}
+
     /**
      * Get all products with pagination and optional filters
      */

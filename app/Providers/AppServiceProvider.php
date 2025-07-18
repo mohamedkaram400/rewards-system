@@ -2,11 +2,12 @@
 
 namespace App\Providers;
 
-use App\Services\ProductService;
 use App\Services\CreditPackageService;
+use App\Repositories\ProductRepository;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
+use App\Repositories\Interfaces\ProductRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,9 +20,7 @@ class AppServiceProvider extends ServiceProvider
             return new CreditPackageService();
         });
         
-        $this->app->bind(ProductService::class, function ($app) {
-            return new ProductService();
-        });
+        $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
         
     }
 
