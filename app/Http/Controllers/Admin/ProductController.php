@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Exception;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use App\DTOs\Product\ProductDTO;
 use App\Services\ProductService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
@@ -58,8 +59,18 @@ class ProductController extends Controller
     public function store(CreateProductRequest $request): JsonResponse
     {
         try {
+            $data = $request->validated();
 
-            $product = $this->productService->createProduct($request->validated());
+            $dto = new ProductDTO(
+                name: $data['name'],
+                description: $data['description'],
+                price: (float) $data['price'],
+                pointCost: (int) $data['point_cost'],
+                isOfferPool: (int) $data['is_offer_pool'],
+                categoryId: (int) $data['category_id'],
+            );
+
+            $product = $this->productService->createProduct($dto);
 
             return $this->ApiResponse('Product Created Successfull', 201, new ProductResource($product));
         } catch (Exception $e) {
@@ -95,10 +106,20 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
         try {
+            $data = $request->validated();
+
+            $dto = new ProductDTO(
+                name: $data['name'],
+                description: $data['description'],
+                price: (float) $data['price'],
+                pointCost: (int) $data['point_cost'],
+                isOfferPool: (int) $data['is_offer_pool'],
+                categoryId: (int) $data['category_id'],
+            );
 
             $product = $this->productService->updateProduct(
                 $product, 
-                $request->validated()
+                $dto
             );
 
             return $this->ApiResponse('Product Updated Successfull', 200, new ProductResource($product));

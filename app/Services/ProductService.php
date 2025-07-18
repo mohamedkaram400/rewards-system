@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
+use App\DTOs\Product\ProductDTO;
 use App\Exceptions\NotFoundProductsException;
 use App\Helpers\Helper;
 use App\Models\Product;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Pagination\CursorPaginator;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
 
 class ProductService
@@ -65,12 +65,12 @@ class ProductService
     /**
      * Create a new product and flush the cache.
      *
-     * @param array $data Product data to be stored.
+     * @param ProductDTO $dto Product dto to be stored.
      * @return \App\Models\Product
      */
-    public function createProduct(array $data): Product
+    public function createProduct($dto): Product
     {
-        $product = $this->productRepository->createProduct($data);
+        $product = $this->productRepository->createProduct($dto);
 
         if ($product) {
             Cache::tags('products')->flush();
@@ -83,12 +83,12 @@ class ProductService
      * Update an existing product, refresh its relations, and flush the cache.
      *
      * @param \App\Models\Product $product
-     * @param array $data Updated product data.
+     * @param ProductDTO $dto Updated product dto.
      * @return \App\Models\Product
      */
-    public function updateProduct(Product $product, array $data): Product
+    public function updateProduct($product, $dto): Product
     {
-        $this->productRepository->updateProduct($product, $data);
+        $this->productRepository->updateProduct($product, $dto);
 
         if ($product) {
             $product->fresh()->load('category');

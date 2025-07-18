@@ -2,6 +2,7 @@
 namespace App\Repositories;
 
 use App\Models\Product;
+use App\DTOs\Product\ProductDTO;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\CursorPaginator;
 use App\Exceptions\ProductDeletionException;
@@ -65,39 +66,41 @@ class ProductRepository implements ProductRepositoryInterface
     }
 
     /**
-     * Create a new product using the given data.
+     * Create a new product using the given dto.
      *
-     * @param array $data
+     * @param ProductDTO $dto
      * @return \App\Models\Product
      */
-    public function createProduct(array $data): Product
+    public function createProduct(ProductDTO $dto): Product
     {
+        // dd($dto);
+
         return Product::create([
-            'name' => $data['name'],
-            'description' => $data['description'],
-            'price' => $data['price'],
-            'point_cost' => $data['point_cost'] ?? 0,
-            'is_offer_pool' => $data['is_offer_pool'] ?? false,
-            'category_id' => $data['category_id'] ?? null
+            'name' => $dto->name,
+            'description' => $dto->description,
+            'price' => $dto->price,
+            'point_cost' => $dto->pointCost ?? 0,
+            'is_offer_pool' => $dto->isOfferPool ?? false,
+            'category_id' => $dto->categoryId ?? null
         ]);
     }
 
     /**
-     * Update the given product with new data.
+     * Update the given product with new dto.
      *
      * @param \App\Models\Product $product
-     * @param array $data
+     * @param ProductDTO $dto
      * @return void
      */
-    public function updateProduct(Product $product, array $data): void
+    public function updateProduct(Product $product, ProductDTO $dto): void
     {
         $product->update([
-            'name' => $data['name'] ?? $product->name,
-            'description' => $data['description'] ?? $product->description,
-            'price' => $data['price'] ?? $product->price,
-            'point_cost' => $data['point_cost'] ?? $product->point_cost,
-            'is_offer_pool' => $data['is_offer_pool'] ?? $product->is_offer_pool,
-            'category_id' => $data['category_id'] ?? $product->category_id
+            'name' => $dto->name ?? $product->name,
+            'description' => $dto->description ?? $product->description,
+            'price' => $dto->price ?? $product->price,
+            'point_cost' => $dto->pointCost ?? $product->point_cost,
+            'is_offer_pool' => $dto->isOfferPool ?? $product->is_offer_pool,
+            'category_id' => $dto->categoryId ?? $product->category_id
         ]);
     }
 
