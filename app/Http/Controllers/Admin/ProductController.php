@@ -59,16 +59,7 @@ class ProductController extends Controller
     public function store(CreateProductRequest $request): JsonResponse
     {
         try {
-            $data = $request->validated();
-
-            $dto = new ProductDTO(
-                name: $data['name'],
-                description: $data['description'],
-                price: (float) $data['price'],
-                pointCost: (int) $data['point_cost'],
-                isOfferPool: (int) $data['is_offer_pool'],
-                categoryId: (int) $data['category_id'],
-            );
+            $dto = ProductDTO::fromArray($request->validated());
 
             $product = $this->productService->createProduct($dto);
 
@@ -106,16 +97,7 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
         try {
-            $data = $request->validated();
-
-            $dto = new ProductDTO(
-                name: $data['name'],
-                description: $data['description'],
-                price: (float) $data['price'],
-                pointCost: (int) $data['point_cost'],
-                isOfferPool: (int) $data['is_offer_pool'],
-                categoryId: (int) $data['category_id'],
-            );
+            $dto = ProductDTO::fromArray($request->validated());
 
             $product = $this->productService->updateProduct(
                 $product, 

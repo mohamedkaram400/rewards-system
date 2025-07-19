@@ -34,9 +34,10 @@ Route::middleware(['auth:sanctum'])->group(function() {
     Route::get('redemptionable-products/', [ProductController::class, 'getProductsRedemptionable']);
 
     Route::post('/purchases', [PurchaseStrategyController::class, 'purchase'])->middleware('throttle:dynamic')->name('purchase.credit');    ; // With strategy pattern 
-
     
-    Route::post('redemptions/', RedemptionController::class)->middleware('throttle:dynamic')->name('redeem.product');;
+    Route::get('transactions-history/', [ProductController::class, 'getProductsRedemptionable']);
+    
+    Route::post('redemptions/', [RedemptionController::class, 'redeem'])->middleware('throttle:dynamic')->name('redeem.product');;
     Route::post('redemption-recommendation-with-ai/', AiRedemptionController::class)->middleware('throttle:dynamic');
     
     Route::post('/auth/logout', [AuthController::class, 'logout']);
