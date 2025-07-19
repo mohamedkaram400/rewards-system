@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->double('amount');
             $table->foreignId('user_id')->constrained('users');
-            $table->enum('type', ['redeem', 'earn', 'transfer_out', 'transfer_in', 'bonus', 'purchase_reward']);
+            $table->enum('type', ['redemption', 'earn', 'transfer_out', 'transfer_in', 'bonus', 'purchase_reward']);
             $table->string('source');
             $table->timestamps();
         });
