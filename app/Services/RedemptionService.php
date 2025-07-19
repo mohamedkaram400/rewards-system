@@ -2,9 +2,10 @@
 namespace App\Services;
 
 use App\Models\Product;
-use App\Models\PointTransaction;
 use App\Enums\TransactionTypeEnum;
+use App\Models\TransactionHistory;
 use Illuminate\Support\Facades\DB;
+use App\Enums\TransactionSourceEnum;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\InsufficientPointsException;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
@@ -64,11 +65,12 @@ class RedemptionService
      */
     private function recordTransaction($product, $userId): void
     {
-        PointTransaction::create([
-            'user_id'    => $userId,
-            'amount'     => $product->point_cost,
-            'type'       => TransactionTypeEnum::REDEMPTION->value,
+        TransactionHistory::create([
+            'user_id' => $userId,
             'related_id' => $product->id,
+            'amount'  => $product->point_cost,
+            'type'    => TransactionTypeEnum::REDEMPTION->value,
+            'source'  => TransactionSourceEnum::REDEEMED_PRODUCT->label($product->id),
         ]);
     }
 }

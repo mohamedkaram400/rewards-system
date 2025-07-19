@@ -5,10 +5,11 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\Purchase;
 use App\Models\CreditPackage;
-use App\Models\PointTransaction;
 use App\Strategy\PaymentProcess;
 use App\Enums\PurchaseStatusEnum;
 use App\Enums\TransactionTypeEnum;
+use App\Models\TransactionHistory;
+use App\Enums\TransactionSourceEnum;
 use App\Strategy\ConcreteStrategyFactory;
 
 class PaymentService
@@ -42,17 +43,31 @@ class PaymentService
 
                     
             // - Log the transaction in point_transactions table
-            PointTransaction::create([
-                'user_id'    => $user->id,
-                'related_id' => $purchase->id,
-                'type'       => TransactionTypeEnum::PURCHASE->value,
-                'amount'     => $package->bonus_points,
-            ]);
-
+            $this->recordTransaction($package, $user->id, $purchase->id);
+ 
         } else {
             $purchase->status = PurchaseStatusEnum::FAILED->value;
             $purchase->save();
         }
                 
+    }
+
+    /**
+     * Record a point transaction in the database.
+     *
+     * @param CreditPackage $package
+     * @param int $userId
+     * @param int $purchaseId
+     * @return void
+     */
+    private function recordTransaction($package, $userId, $purchaseId): void
+    {
+        TransactionHistory::create([
+            'user_id' => $userId,
+            'related_id' => $purchaseId,
+            'amount'     => $package->bonus_points,
+            'type'    => TransactionTypeEnum::REDEMPTION->value,
+            'source'  => TransactionSourceEnum::ORDER->label($package->id),
+        ]);
     }
 }

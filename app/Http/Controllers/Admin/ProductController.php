@@ -10,9 +10,9 @@ use App\Services\ProductService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Exceptions\NotFoundException;
 use App\Http\Resources\ProductResource;
 use App\Exceptions\ProductDeletionException;
-use App\Exceptions\NotFoundProductsException;
 use App\Http\Requests\Admin\CreateProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
 
@@ -32,7 +32,7 @@ class ProductController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      *
-     * @throws \App\Exceptions\NotFoundProductsException
+     * @throws \App\Exceptions\NotFoundException
      */
     public function index(Request $request): JsonResponse
     {
@@ -41,8 +41,8 @@ class ProductController extends Controller
 
             return $this->ApiResponse('Products Returned Successfull', 200, ProductResource::collection($products));
 
-        } catch (NotFoundProductsException $e) {
-            return $this->apiResponse($e->getMessage(), 401);
+        } catch (NotFoundException $e) {
+            return $this->apiResponse('No products found', 401);
         } catch (Exception $e) {
             return $this->apiResponse($e->getMessage(), 500);
         }

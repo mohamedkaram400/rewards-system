@@ -8,6 +8,8 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
+use App\Repositories\Interfaces\TransactionRepositoryInterface;
+use App\Repositories\TransactionRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
         });
         
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
+        $this->app->bind(TransactionRepositoryInterface::class, TransactionRepository::class);
         
     }
 

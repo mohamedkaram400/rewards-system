@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\RedemptionController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\AiRedemptionController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -35,7 +36,7 @@ Route::middleware(['auth:sanctum'])->group(function() {
 
     Route::post('/purchases', [PurchaseStrategyController::class, 'purchase'])->middleware('throttle:dynamic')->name('purchase.credit');    ; // With strategy pattern 
     
-    Route::get('transactions-history/', [ProductController::class, 'getProductsRedemptionable']);
+    Route::get('transactions-history/{userId}', [TransactionController::class, 'transactionsHistory']);
     
     Route::post('redemptions/', [RedemptionController::class, 'redeem'])->middleware('throttle:dynamic')->name('redeem.product');;
     Route::post('redemption-recommendation-with-ai/', AiRedemptionController::class)->middleware('throttle:dynamic');
