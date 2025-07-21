@@ -121,6 +121,19 @@ services:
     networks:
       - rewards
   
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: rewards-elastic
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false  
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - rewards
+  
   prometheus:
     image: prom/prometheus
     container_name: prometheus
@@ -156,4 +169,5 @@ volumes:
   redis_data:
   grafana_storage:
   prom_data:
+  elasticsearch_data:
   

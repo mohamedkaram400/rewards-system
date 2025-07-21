@@ -7,12 +7,16 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "babenkoivan/elastic-scout-driver-plus": "^5.1",
+        "elasticsearch/elasticsearch": "^8.18",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
+        "laravel/scout": "^10.16",
         "laravel/tinker": "^2.10.1",
         "openai-php/laravel": "^0.13.0",
+        "php-http/guzzle7-adapter": "^1.1",
         "predis/predis": "^3.0",
-        "spatie/laravel-prometheus": "^1.2"
+        "spatie/laravel-prometheus": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
