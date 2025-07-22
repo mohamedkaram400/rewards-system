@@ -12,7 +12,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use Illuminate\Validation\ValidationException;
 
-class AuthController extends Controller
+class SanctumAuthController extends Controller
 {
     use ApiResponseTrait;
 
