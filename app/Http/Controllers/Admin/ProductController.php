@@ -38,8 +38,15 @@ class ProductController extends Controller
     {
         try {
             $products = $this->productService->getAllProducts($request);
-
-            return $this->ApiResponse('Products Returned Successfull', 200, ProductResource::collection($products));
+            
+            return $this->ApiResponse('Products Returned Successfull', 200,  [
+                'data' => ProductResource::collection($products),
+                'next_cursor' => $products->nextCursor()?->encode(),
+                'previous_cursor' => $products->previousCursor()?->encode(),
+                'has_more_pages' => $products->hasMorePages(),
+                'count' => $products->count(),
+                'per_page' => $products->perPage(),
+            ]);
 
         } catch (NotFoundException $e) {
             return $this->apiResponse('No products found', 401);

@@ -2,12 +2,13 @@
 
 namespace App\Services;
 
-use App\DTOs\Product\ProductDTO;
-use App\Exceptions\NotFoundProductsException;
 use App\Helpers\Helper;
 use App\Models\Product;
+use App\DTOs\Product\ProductDTO;
+use App\Exceptions\NotFoundException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Pagination\CursorPaginator;
+use App\Exceptions\NotFoundProductsException;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
 
 class ProductService
@@ -23,15 +24,15 @@ class ProductService
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Pagination\CursorPaginator
      *
-     * @throws \App\Exceptions\NotFoundProductsException If no products are found.
+     * @throws \App\Exceptions\NotFoundException If no products are found.
      */
     public function getAllProducts($request): CursorPaginator 
     {
         $filters = [
-            'per_page' => $request->input('per_page', 10),
-            'offer_pool' => $request->boolean('offer_pool'),
-            'category_id' => $request->input('category_id'),
-            'search' => $request->input('search'),
+            'perPage' => $request->input('perPage', 10),
+            'offerPoolOnly' => $request->boolean('offerPool'),
+            'categoryId' => $request->input('categoryId'),
+            'searchTerm' => $request->input('searchTerm'),
         ];
 
         // Generate unique cache key based on all parameters
@@ -42,7 +43,7 @@ class ProductService
             $products = $this->productRepository->getAllProducts($filters);
            
             if ($products->count() === 0) {
-                throw new NotFoundProductsException();
+                throw new NotFoundException('Not found products');
             }
 
             return $products;
