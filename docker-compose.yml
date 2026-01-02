@@ -59,7 +59,7 @@ services:
     image: nginx:alpine
     container_name: rewards-nginx
     ports:
-      - "8000:80" 
+      - "80:80" 
     volumes:
       - ./:/app
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
@@ -75,7 +75,7 @@ services:
       retries: 3
 
   mysql_master:
-    image: mysql:5.7
+    image: mysql:8.0
     container_name: mysql-master
     ports:
       - "3309:3306"
@@ -85,13 +85,14 @@ services:
     command: >
       --server-id=1
       --log-bin=mysql-bin
+      --binlog-do-db=reward_system
     volumes:
-      - mysql-master:/var/lib/mysql
+      - mysql_master:/var/lib/mysql
     networks:
       - rewards
 
   mysql_replica1:
-    image: mysql:5.7
+    image: mysql:8.0
     container_name: mysql-replica1
     ports:
       - "3310:3306"
@@ -105,7 +106,7 @@ services:
       --log-bin=mysql-bin
       --log-slave-updates=1
     volumes:
-      - mysql-replica1:/var/lib/mysql
+      - mysql_replica1:/var/lib/mysql
     networks:
       - rewards
     depends_on:
@@ -134,19 +135,19 @@ services:
     networks:
       - rewards
   
-  prometheus:
-    image: prom/prometheus
-    container_name: prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-    ports:
-      - 9090:9090
-    restart: unless-stopped
-    volumes:
-      - ./docker/prometheus:/etc/prometheus:ro
-      - prom_data:/prometheus
-    networks:
-      - rewards 
+  # prometheus:
+  #   image: prom/prometheus
+  #   container_name: prometheus
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #   ports:
+  #     - 9090:9090
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./docker/prometheus:/etc/prometheus:ro
+  #     - prom_data:/prometheus
+  #   networks:
+  #     - rewards 
       
   grafana:
     image: grafana/grafana
@@ -164,8 +165,8 @@ networks:
     driver: bridge
 
 volumes:
-  mysql-master:
-  mysql-replica1:
+  mysql_master:
+  mysql_replica1:
   redis_data:
   grafana_storage:
   prom_data:
