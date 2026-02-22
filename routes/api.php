@@ -73,3 +73,7 @@ Route::middleware(['auth:sanctum'])->group(function() {
 
 Route::post('/payment/callback', [PurchaseStrategyController::class, 'callback']);
 
+
+Route::get('/ping', function () {
+    return 'pong';
+});

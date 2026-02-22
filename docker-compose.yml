@@ -19,10 +19,12 @@ services:
       DB_DATABASE: ${DB_DATABASE}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
+    env_file:
+      - .env
     networks:
       - rewards
     healthcheck:
-      test: ["CMD", "php", "-v"]
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/ping || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -47,21 +49,23 @@ services:
       DB_DATABASE: ${DB_DATABASE}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
+    env_file:
+      - .env
     networks:
       - rewards
     healthcheck:
-      test: ["CMD", "php", "-v"]
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/ping || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
 
   nginx:
     image: nginx:alpine
-    container_name: rewards-nginx
+    container_name: nginx-rewards
     ports:
-      - "80:80" 
+      - "2000:80" 
     volumes:
-      - ./:/app
+      - ./public:/app/public
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
     depends_on:
       - app1
@@ -69,7 +73,7 @@ services:
     networks:
       - rewards
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
+      test: ["CMD", "curl", "-f", "http://localhost:2000"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -82,6 +86,8 @@ services:
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    env_file:
+      - .env
     command: >
       --server-id=1
       --log-bin=mysql-bin
@@ -90,7 +96,12 @@ services:
       - mysql_master:/var/lib/mysql
     networks:
       - rewards
-
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pqazwsx123"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  
   mysql_replica1:
     image: mysql:8.0
     container_name: mysql-replica1
@@ -99,6 +110,8 @@ services:
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    env_file:
+      - .env
     command: >
       --server-id=2
       --read-only=1
@@ -111,6 +124,11 @@ services:
       - rewards
     depends_on:
       - mysql_master
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pqazwsx123"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   redis:
     image: redis:alpine
@@ -121,10 +139,12 @@ services:
       - redis_data:/data
     networks:
       - rewards
-  
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+
   elastic:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
-    container_name: rewards-elastic
+    container_name: elastic-rewards
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false  
@@ -134,7 +154,12 @@ services:
       - elasticsearch_data:/usr/share/elasticsearch/data
     networks:
       - rewards
-  
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsSL http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
   # prometheus:
   #   image: prom/prometheus
   #   container_name: prometheus
@@ -149,16 +174,16 @@ services:
   #   networks:
   #     - rewards 
       
-  grafana:
-    image: grafana/grafana
-    container_name: grafana
-    restart: unless-stopped
-    ports:
-     - '3000:3000'
-    volumes:
-      - grafana_storage:/var/lib/grafana
-    networks:
-      - rewards 
+  # grafana:
+  #   image: grafana/grafana
+  #   container_name: grafana-lastic-reward
+  #   restart: unless-stopped
+  #   ports:
+  #    - '3000:3000'
+  #   volumes:
+  #     - grafana_storage:/var/lib/grafana
+  #   networks:
+  #     - rewards 
       
 networks:
   rewards:
